@@ -505,5 +505,8 @@
     "selling_of_item": "Vente de {1} {2}",
     "too_far_from_seller": "Restez avec le fournisseur pour conclure la vente",
     "sold_item_for_money": "Vous avez vendu {1} {2} pour {3} $",
-    "nothing_to_sell": "Vous n'avez rien à vendre à ce fournisseur"
+    "nothing_to_sell": "Vous n'avez rien à vendre à ce fournisseur",
+    "defibrillator": "Défibrillateur",
+    "adrenaline_syringe": "Seringue d'adrénaline",
+    "bandage": "Bandage"
 }
