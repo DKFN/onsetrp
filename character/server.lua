@@ -119,7 +119,7 @@ function UpdateClothes(player)
     CallRemoteEvent(player, "ClientChangeClothing", player, 6, "noShoesLegsTorso")
     
     if PlayerData[player].job == "medic" then
-        CallRemoteEvent(player, "ClientChangeClothing", player, 0, PlayerData[player].clothing[1], playerhairscolor[1], playerhairscolor[2], playerhairscolor[3], playerhairscolor[4])
+        CallRemoteEvent(player, "ClientChangeClothing", player, 0, PlayerData[player].clothing[1], playerhairscolor[1] or 0, playerhairscolor[2] or 0, playerhairscolor[3] or 0, playerhairscolor[4] or 0)
         CallRemoteEvent(player, "ClientChangeClothing", player, 1, "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Set_Scientist_LPR", 0, 0, 0, 0)
         CallRemoteEvent(player, "ClientChangeClothing", player, 4, "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_FormalPants_LPR", 0, 0, 0, 0)
         CallRemoteEvent(player, "ClientChangeClothing", player, 5, "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_BusinessShoes_LPR", 0, 0, 0, 0)
@@ -224,5 +224,4 @@ end
 
 AddRemoteEvent("character:playerrdytospawn", function(player)
     SetPlayerLocation(player, PLAYER_SPAWN_POINT.x, PLAYER_SPAWN_POINT.y, PLAYER_SPAWN_POINT.z) -- MOTEL
-    SetPlayerSpawnLocation(player, 212124, 159055, 1305, 90) -- HOSPITAL
 end)

@@ -188,7 +188,6 @@ function OnAccountLoaded(player)
 end
 
 function setPositionAndSpawn(player, position)
-    SetPlayerSpawnLocation(player, 227603, -65590, 400, 0)
     if position ~= nil and position.x ~= nil and position.y ~= nil and position.z ~= nil then
         SetPlayerLocation(player, PlayerData[player].position.x, PlayerData[player].position.y, PlayerData[player].position.z + 250)-- Pour empêcher de se retrouver sous la map
     else

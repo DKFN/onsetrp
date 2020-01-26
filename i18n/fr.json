@@ -508,5 +508,11 @@
     "nothing_to_sell": "Vous n'avez rien à vendre à ce fournisseur",
     "defibrillator": "Défibrillateur",
     "adrenaline_syringe": "Seringue d'adrénaline",
-    "bandage": "Bandage"
+    "bandage": "Bandage",
+    "not_medic": "Vous n'êtes pas médecin",
+    "medic_car":"Ambulance",
+    "mediccar_place_player_in_back": "Vous avez placer cette personne dans votre ambulance",
+    "mediccar_no_more_seat": "Il n'y a plus de place dans votre ambulance",
+    "mediccar_too_far_away": "Votre ambulance est trop loin",
+    "mediccar_player_remove_from_car": "Vous avez fait sortir les personnes de votre ambulance"
 }
