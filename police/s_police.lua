@@ -168,7 +168,7 @@ end
 
 AddEvent("job:onspawn", function(player)
     if PlayerData[player].job == "police" and PlayerData[player].police == 1 then -- Anti glitch
-        GivePoliceEquipmentToPlayer(player)
+        --GivePoliceEquipmentToPlayer(player)
         SetPlayerPropertyValue(player, "Police:IsOnDuty", true, true)
     end
     

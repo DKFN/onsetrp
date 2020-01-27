@@ -39,6 +39,8 @@ local medicVehicleNpcIds = {}
 local medicGarageIds = {}
 local medicEquipmentNpcIds = {}
 
+local callOuts = {}
+
 AddEvent("OnPackageStart", function()
     for k, v in pairs(MEDIC_SERVICE_NPC) do
         v.npcObject = CreateNPC(v.x, v.y, v.z, v.h)
@@ -152,8 +154,11 @@ end
 
 AddEvent("job:onspawn", function(player)
     if PlayerData[player].job == "medic" and PlayerData[player].medic == 1 then -- Anti glitch
-        GiveMedicEquipmentToPlayer(player)
         SetPlayerPropertyValue(player, "Medic:IsOnDuty", true, true)
+    end
+    
+    if PlayerData[player].health ~= nil then
+        SetPlayerHealth(player, PlayerData[player].health)
     end
 end)
 
@@ -205,7 +210,7 @@ function SpawnMedicCar(player)
         CallRemoteEvent(player, "MakeErrorNotification", _("cannot_spawn_vehicle"))
     end
 end
-AddRemoteEvent("police:spawnvehicle", SpawnPoliceCar)
+AddRemoteEvent("medic:spawnvehicle", SpawnPoliceCar)
 
 function DespawnMedicCar(player)
     -- #2 Check if the player has a job vehicle spawned then destroy it
@@ -285,23 +290,44 @@ function RemovePlayerInCar(player)
         CallRemoteEvent(player, "MakeNotification", _("mediccar_player_remove_from_car"), "linear-gradient(to right, #00b09b, #96c93d)")
     end
 end
-AddRemoteEvent("police:removeplayerincar", RemovePlayerInCar)
+AddRemoteEvent("medic:removeplayerincar", RemovePlayerInCar)
 --------- INTERACTIONS END
 --------- HEALTH BEHAVIOR
 AddEvent("OnPlayerDeath", function(player, instigator)
     SetPlayerSpawnLocation(player, DEFAULT_RESPAWN_POINT.x, DEFAULT_RESPAWN_POINT.y, DEFAULT_RESPAWN_POINT.z, DEFAULT_RESPAWN_POINT.h)-- HOSPITAL
-
+    
     AddPlayerChat(player, "Il y a " .. GetMedicsOnDuty(player) .. " médecins en service")
     if GetMedicsOnDuty(player) > 0 then
         SetPlayerRespawnTime(player, TIMER_BEFORE_RESPAWN * 1000)
+        
+        local x, y, z = GetPlayerLocation(player)
+        callOuts[player] = {location = {x = x, y = y, z = z}, taken = false}
+        MedicCalloutSend(player)
     else
         SetPlayerRespawnTime(player, TIMER_BEFORE_RESPAWN_WITHOUT_MEDIC * 1000)
     end
-    print(PlayerData[player].health)
 end)
 
--- TODO : IsDead, DeathLocation, Clean Inv
+function MedicCalloutSend(player)
+    for k, v in pairs(GetAllPlayers()) do
+        if PlayerData[v].medic ~= 1 and PlayerData[v].job ~= "medic" then return end
+        AddPlayerChat(v, "Quelqu'un a besoin d'aide. Prendre l'appel ? (/medcalltake "..player..")")
+    end
+end
 
+function MedicCalloutTake(player, target)
+    if PlayerData[player].medic ~= 1 and PlayerData[player].job ~= "medic" then return end
+    if callOuts[tonumber(target)] == nil then return end
+    if callOuts[tonumber(target)].taken ~= false then 
+        CallRemoteEvent(player, "MakeErrorNotification", "Le callout est déjà pris") 
+        return
+    end
+    callOuts[tonumber(target)].taken = true
+    CallRemoteEvent(player, "medic:callout:createwp", tonumber(target))
+    CallRemoteEvent(player, "MakeNotification", "Vous avez pris le callout", "linear-gradient(to right, #00b09b, #96c93d)")
+
+end
+AddCommand("medcalltake", MedicCalloutTake)
 --------- HEALTH BEHAVIOR END
 -- Tools
 function GetClosestSpawnPoint(player)
@@ -320,7 +346,7 @@ end
 
 function GetMedicsOnDuty(player)
     local nb = 0
-    for k, v in pairs(GetAllPlayers()) do
+    for k, v in pairs(GetAllPlayers()) do -- TODO : check le joueur courant n'est pas le player
         if PlayerData[v].job == "medic" then
             nb = nb + 1
         end
@@ -350,10 +376,10 @@ AddCommand("suicide", function(player)
 end)
 
 AddCommand("heal", function(player, amount)
-    
-    local x,y,z = GetPlayerLocation(player)    
-    SetPlayerSpawnLocation(player, x, y, z, 0)
-    SetPlayerRespawnTime(player, 0)    
-    SetPlayerHealth(player, tonumber(amount))
-    
+        
+        local x, y, z = GetPlayerLocation(player)
+        SetPlayerSpawnLocation(player, x, y, z, 0)
+        SetPlayerRespawnTime(player, 0)
+        SetPlayerHealth(player, tonumber(amount))
+
 end)
