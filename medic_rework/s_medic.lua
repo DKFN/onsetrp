@@ -6,6 +6,7 @@ local TIMER_BEFORE_RESPAWN_WITHOUT_MEDIC = 10 -- 10 secondes
 local TIMER_BEFORE_RESPAWN = 900 -- 15 minutes
 local REVIVE_PERCENT_SUCCESS = 33 -- in percent
 local TIME_TO_REVIVE = 5 -- in seconds
+local AUTO_CALL_FOR_MEDIC = false
 
 local DEFAULT_RESPAWN_POINT = {x = 212124, y = 159055, z = 1305, h = 90}
 
@@ -116,7 +117,7 @@ function StartService(player)
     -- CLOTHINGS
     GiveMedicEquipmentToPlayer(player)
     UpdateClothes(player)
-    CallRemoteEvent(player, "MakeNotification", _("join_police"), "linear-gradient(to right, #00b09b, #96c93d)")
+    CallRemoteEvent(player, "MakeNotification", _("medic_start_service"), "linear-gradient(to right, #00b09b, #96c93d)")
     return true
 end
 
@@ -134,7 +135,7 @@ function EndService(player)
     -- #3 Trigger update of cloths
     UpdateClothes(player)
     
-    CallRemoteEvent(player, "MakeNotification", _("quit_police"), "linear-gradient(to right, #00b09b, #96c93d)")
+    CallRemoteEvent(player, "MakeNotification", _("medic_end_service"), "linear-gradient(to right, #00b09b, #96c93d)")
     
     return true
 end
@@ -226,7 +227,8 @@ function DespawnMedicCar(player)
 end
 
 AddEvent("OnPlayerPickupHit", function(player, pickup)-- Store the vehicle in garage
-    if PlayerData[player].job ~= "medic" then return end
+    if PlayerData[v].medic ~= 1 then return end
+    if PlayerData[v].job ~= "medic" then return end
     for k, v in pairs(MEDIC_GARAGE) do
         if v.garageObject == pickup then
             local vehicle = GetPlayerVehicle(player)
@@ -244,8 +246,8 @@ end)
 --------- MEDIC VEHICLE END
 --------- INTERACTIONS
 function PutPlayerInCar(player)
-    if PlayerData[player].medic ~= 1 then return end
-    if PlayerData[player].job ~= "medic" then return end
+    if PlayerData[v].medic ~= 1 then return end
+    if PlayerData[v].job ~= "medic" then return end
     
     local target = GetNearestPlayer(player, 200)
     if target ~= nil then
@@ -275,8 +277,8 @@ function SetPlayerInCar(player, target)
 end
 
 function RemovePlayerInCar(player)
-    if PlayerData[player].medic ~= 1 then return end
-    if PlayerData[player].job ~= "medic" then return end
+    if PlayerData[v].medic ~= 1 then return end
+    if PlayerData[v].job ~= "medic" then return end
     if PlayerData[player].job_vehicle == nil then return end
     
     local x, y, z = GetVehicleLocation(PlayerData[player].job_vehicle)
@@ -295,24 +297,25 @@ end
 AddRemoteEvent("medic:removeplayerincar", RemovePlayerInCar)
 
 function RevivePlayer(player)
-    if PlayerData[player].medic ~= 1 and PlayerData[player].job ~= "medic" then return end -- fail check
+    if PlayerData[v].medic ~= 1 then return end
+    if PlayerData[v].job ~= "medic" then return end
     
     local nearestPlayer = GetNearestPlayer(player, 200)-- Get closest player in range
     if nearestPlayer == nil or nearestPlayer == 0 then
-        CallRemoteEvent(player, "MakeErrorNotification", "Aucune personne a proximité")
+        CallRemoteEvent(player, "MakeErrorNotification", _("medic_nobody_nearby"))
         return
     end
     if GetPlayerHealth(nearestPlayer) > 0 then -- Cehck HP
-        CallRemoteEvent(player, "MakeErrorNotification", "Cette personne est vivante")
+        CallRemoteEvent(player, "MakeErrorNotification", _("medic_nobody_is_dead"))
         return
     end
     
     if GetNumberOfItem(player, "defibrillator") < 1 then -- Check defib in inventory
-        CallRemoteEvent(player, "MakeErrorNotification", "Un défibrillateur est nécessaire")
+        CallRemoteEvent(player, "MakeErrorNotification", _("medic_defibrillator_needed"))
         return
     end
     
-    CallRemoteEvent(player, "loadingbar:show", "Tentative de réanimation", TIME_TO_REVIVE)-- LOADING BAR
+    CallRemoteEvent(player, "loadingbar:show", _("medic_revive_attempt"), TIME_TO_REVIVE)-- LOADING BAR
     SetPlayerAnimation(player, "REVIVE")
     local timer = CreateTimer(function()
         SetPlayerAnimation(player, "REVIVE")
@@ -335,27 +338,24 @@ function RevivePlayer(player)
                 PlayerData[nearestPlayer].health = 1
             end)
             
-            CallRemoteEvent(player, "MakeNotification", "Vous avez réanimé cette personne avec succès !", "linear-gradient(to right, #00b09b, #96c93d)")
+            CallRemoteEvent(player, "MakeNotification", _("medic_revived_success"), "linear-gradient(to right, #00b09b, #96c93d)")
             if callOuts[nearestPlayer].taken == true then MedicCalloutEnd(player, nearestPlayer) end
             return
         else -- Failure !
-            CallRemoteEvent(player, "MakeErrorNotification", "La réanimation est un echec")
+            CallRemoteEvent(player, "MakeErrorNotification", _("medic_revived_failure"))
             return
         end
     end)
-
-
---REVIVE_PERCENT_SUCCESS
 end
 --------- INTERACTIONS END
 --------- HEALTH BEHAVIOR
 AddEvent("OnPlayerDeath", function(player, instigator)
     SetPlayerSpawnLocation(player, DEFAULT_RESPAWN_POINT.x, DEFAULT_RESPAWN_POINT.y, DEFAULT_RESPAWN_POINT.z, DEFAULT_RESPAWN_POINT.h)-- HOSPITAL
     
-    AddPlayerChat(player, "Il y a " .. GetMedicsOnDuty(player) .. " médecins en service")
+    AddPlayerChat(player, _("medic_x_medics_on_duty", GetMedicsOnDuty(player)))
     if GetMedicsOnDuty(player) > 0 then
         SetPlayerRespawnTime(player, TIMER_BEFORE_RESPAWN * 1000)
-        CreateMedicCallout(player)
+        if AUTO_CALL_FOR_MEDIC == true then CreateMedicCallout(player) end
     else
         SetPlayerRespawnTime(player, TIMER_BEFORE_RESPAWN_WITHOUT_MEDIC * 1000)
     end
@@ -371,8 +371,9 @@ end
 
 function MedicCalloutSend(player)
     for k, v in pairs(GetAllPlayers()) do
-        if PlayerData[v].medic ~= 1 and PlayerData[v].job ~= "medic" then return end
-        AddPlayerChat(v, "Quelqu'un a besoin d'aide. Prendre l'appel ? (/medcalltake " .. player .. ")")
+        if PlayerData[v].medic ~= 1 then return end
+        if PlayerData[v].job ~= "medic" then return end
+        AddPlayerChat(v,  _("medic_someone_is_in_trouble").." (/medcalltake " .. player .. ")")
     end
 end
 
@@ -380,12 +381,12 @@ function MedicCalloutTake(player, target)
     if PlayerData[player].medic ~= 1 and PlayerData[player].job ~= "medic" then return end
     if callOuts[tonumber(target)] == nil then return end
     if callOuts[tonumber(target)].taken ~= false then
-        CallRemoteEvent(player, "MakeErrorNotification", "Le callout est déjà pris")
+        CallRemoteEvent(player, "MakeErrorNotification", _("medic_callout_taken"))
         return
     end
     callOuts[tonumber(target)].taken = true
     CallRemoteEvent(player, "medic:callout:createwp", tonumber(target))
-    CallRemoteEvent(player, "MakeNotification", "Vous avez pris le callout", "linear-gradient(to right, #00b09b, #96c93d)")
+    CallRemoteEvent(player, "MakeNotification", _("medic_you_took_callout"), "linear-gradient(to right, #00b09b, #96c93d)")
 
 end
 AddCommand("medcalltake", MedicCalloutTake)
@@ -394,12 +395,12 @@ function MedicCalloutEnd(player, target)
     if PlayerData[player].medic ~= 1 and PlayerData[player].job ~= "medic" then return end
     if callOuts[tonumber(target)] == nil then return end
     if callOuts[tonumber(target)].taken ~= true then
-        CallRemoteEvent(player, "MakeErrorNotification", "Le callout n'a pas été pris")
+        CallRemoteEvent(player, "MakeErrorNotification", _("an_error_occured"))
         return
     end
     callOuts[tonumber(target)] = nil
     CallRemoteEvent(player, "medic:callout:clean", tonumber(target))
-    CallRemoteEvent(player, "MakeNotification", "Vous avez terminé le callout", "linear-gradient(to right, #00b09b, #96c93d)")
+    CallRemoteEvent(player, "MakeNotification", _("medic_ended_callout"), "linear-gradient(to right, #00b09b, #96c93d)")
 end
 AddCommand("medcallend", MedicCalloutEnd)
 --------- CALLOUTS END
@@ -459,3 +460,8 @@ end)
 AddCommand("revive", function(player)
     RevivePlayer(player)
 end)
+
+AddCommand("helpme", function(player)
+    CreateMedicCallout(player)
+end)
+
