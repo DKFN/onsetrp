@@ -518,5 +518,9 @@
     "medic_someone_is_in_trouble": "Quelqu'un a besoin d'aide. Prendre l'appel ?",
     "medic_callout_taken": "L'appel a déjà été pris",
     "medic_you_took_callout": "Vous avez pris l'appel",
-    "medic_ended_callout": "Vous avez terminé l'appel"
+    "medic_ended_callout": "Vous avez terminé l'appel",
+    "medic_player_is_fullhp": "Cette personne est en pleine forme",
+    "medic_hospital_needed_to_heal": "Vous devez être à l'hôpital pour prodiguer de vrai soins",
+    "medic_healing_in_progress": "Soins en cours",
+    "medic_done_healing": "Vous avez appliqué des soins"
 }

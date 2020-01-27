@@ -6,15 +6,17 @@ local medicNpcIds = {}
 local medicVehicleNpcIds = {}
 local medicGarageIds = {}
 local medicEquipmentNpcIds = {}
+local medicHospitalLocationIds = {}
 
 local wpObject
 local currentCallout
 
-AddRemoteEvent("medic:setup", function(_medicNpcIds, _medicVehicleNpcIds, _medicGarageIds, _medicEquipmentNpcIds)
+AddRemoteEvent("medic:setup", function(_medicNpcIds, _medicVehicleNpcIds, _medicGarageIds, _medicEquipmentNpcIds, _medicHospitalLocationIds)
     medicNpcIds = _medicNpcIds
     medicVehicleNpcIds = _medicVehicleNpcIds
     medicGarageIds = _medicGarageIds
     medicEquipmentNpcIds = _medicEquipmentNpcIds
+    medicHospitalLocationIds = _medicHospitalLocationIds
 end)
 
 AddEvent("OnTranslationReady", function()
