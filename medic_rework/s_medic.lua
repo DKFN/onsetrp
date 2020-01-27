@@ -154,7 +154,7 @@ function GiveMedicEquipmentToPlayer(player)-- To give medic equipment to medics
         end
     end
 end
-AddRemoteEvent("medic:checkmyequipment", GivePoliceEquipmentToPlayer)
+AddRemoteEvent("medic:checkmyequipment", GiveMedicEquipmentToPlayer)
 
 function RemoveMedicEquipmentToPlayer(player) -- remove equipment from a medic
     for k, v in pairs(MEDIC_EQUIPEMENT_NEEDED) do
@@ -220,7 +220,7 @@ function SpawnMedicCar(player) -- to spawn an ambulance
         CallRemoteEvent(player, "MakeErrorNotification", _("cannot_spawn_vehicle"))
     end
 end
-AddRemoteEvent("medic:spawnvehicle", SpawnPoliceCar)
+AddRemoteEvent("medic:spawnvehicle", SpawnMedicCar)
 
 function DespawnMedicCar(player) -- to despawn an ambulance
     -- #2 Check if the player has a job vehicle spawned then destroy it
@@ -353,6 +353,7 @@ function RevivePlayer(player) -- To revive a player. can fail. need defib.
         end
     end)
 end
+AddRemoteEvent("medic:interact:revive", RevivePlayer)
 
 function TruelyHealPlayer(player) -- To really heal a player. This need to be at the hospital.
     if PlayerData[player].medic ~= 1 then return end
@@ -394,12 +395,15 @@ function TruelyHealPlayer(player) -- To really heal a player. This need to be at
         return
     end)    
 end
+AddRemoteEvent("medic:interact:heal", TruelyHealPlayer)
+
 --------- INTERACTIONS END
 --------- HEALTH BEHAVIOR
 AddEvent("OnPlayerDeath", function(player, instigator) -- do some stuff when player die
     SetPlayerSpawnLocation(player, DEFAULT_RESPAWN_POINT.x, DEFAULT_RESPAWN_POINT.y, DEFAULT_RESPAWN_POINT.z, DEFAULT_RESPAWN_POINT.h)-- HOSPITAL
     
     AddPlayerChat(player, _("medic_x_medics_on_duty", GetMedicsOnDuty(player)))
+    AddPlayerChat(player, _("medic_help_tooltip"))
     if GetMedicsOnDuty(player) > 0 then
         SetPlayerRespawnTime(player, TIMER_BEFORE_RESPAWN * 1000)
         if AUTO_CALL_FOR_MEDIC == true then CreateMedicCallout(player) end
@@ -411,6 +415,7 @@ end)
 --------- HEALTH BEHAVIOR END
 --------- CALLOUTS
 function CreateMedicCallout(player) -- create a new callout
+    if GetPlayerHealth(player) > 50 then return end     -- To not bother medics with trolls
     local x, y, z = GetPlayerLocation(player)
     if callOuts[player] ~= nil then return end
     callOuts[player] = {location = {x = x, y = y, z = z}, taken = false}
@@ -421,7 +426,8 @@ function MedicCalloutSend(player) -- send the new callout to medics
     for k, v in pairs(GetAllPlayers()) do
         if PlayerData[v].medic ~= 1 then return end
         if PlayerData[v].job ~= "medic" then return end
-        AddPlayerChat(v,  _("medic_someone_is_in_trouble").." (/medcalltake " .. player .. ")")
+        CallRemoteEvent(player, "medic:callout:updatepending", player)
+        CallRemoteEvent(player, "MakeNotification", _("medic_someone_is_in_trouble"), "linear-gradient(to right, #00b09b, #96c93d)", 10000)
     end
 end
 
@@ -435,9 +441,9 @@ function MedicCalloutTake(player, target) -- allow a medic to take the callout
     callOuts[tonumber(target)].taken = true
     CallRemoteEvent(player, "medic:callout:createwp", tonumber(target))
     CallRemoteEvent(player, "MakeNotification", _("medic_you_took_callout"), "linear-gradient(to right, #00b09b, #96c93d)")
-
+    CallRemoteEvent(tonumber(target), "MakeNotification", _("medic_callout_medic_is_coming"), "linear-gradient(to right, #00b09b, #96c93d)", 10000)
 end
-AddCommand("medcalltake", MedicCalloutTake)
+AddRemoteEvent("medic:callout:start", MedicCalloutTake)
 
 function MedicCalloutEnd(player, target) -- allow a medic to end a callout
     if PlayerData[player].medic ~= 1 and PlayerData[player].job ~= "medic" then return end
@@ -450,6 +456,8 @@ function MedicCalloutEnd(player, target) -- allow a medic to end a callout
     CallRemoteEvent(player, "medic:callout:clean", tonumber(target))
     CallRemoteEvent(player, "MakeNotification", _("medic_ended_callout"), "linear-gradient(to right, #00b09b, #96c93d)")
 end
+AddRemoteEvent("medic:callout:end", MedicCalloutEnd)
+
 AddCommand("medcallend", MedicCalloutEnd)
 --------- CALLOUTS END
 -- Tools
@@ -494,39 +502,12 @@ AddCommand("medic", function(player)
     StartStopService(player)
 end)
 
-AddCommand("mediccar", function(player)
-    SpawnMedicCar(player)
-end)
-
-AddCommand("medicpa", function(player, target)
-    SetPlayerInCar(player, tonumber(target))
-end)
-
-AddCommand("medicrpa", function(player, target)
-    RemovePlayerInCar(player)
-end)
-
 AddCommand("suicide", function(player)
     SetPlayerHealth(player, 0)
 end)
 
-AddCommand("heal", function(player, amount)
-    local x, y, z = GetPlayerLocation(player)
-    SetPlayerSpawnLocation(player, x, y, z, 0)
-    SetPlayerRespawnTime(player, 0)
-    SetPlayerHealth(player, tonumber(amount))
-end)
-
-AddCommand("revive", function(player)
-    RevivePlayer(player)
-end)
-
 AddCommand("helpme", function(player)
     CreateMedicCallout(player)
-end)
-
-AddCommand("medicheal", function(player)
-    TruelyHealPlayer(player)
 end)
 
 
