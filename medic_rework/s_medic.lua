@@ -421,7 +421,7 @@ end
 function GetMedicsOnDuty(player)
     local nb = 0
     for k, v in pairs(GetAllPlayers()) do -- TODO : check le joueur courant n'est pas le player
-        if PlayerData[v].job == "medic" then
+        if PlayerData[v].job == "medic" and v ~= player then
             nb = nb + 1
         end
     end
