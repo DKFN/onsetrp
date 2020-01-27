@@ -8,6 +8,7 @@ local medicGarageIds = {}
 local medicEquipmentNpcIds = {}
 
 local wpObject
+local currentCallout
 
 AddRemoteEvent("medic:setup", function(_medicNpcIds, _medicVehicleNpcIds, _medicGarageIds, _medicEquipmentNpcIds)
     medicNpcIds = _medicNpcIds
@@ -22,7 +23,13 @@ end)
 
 
 AddRemoteEvent("medic:callout:createwp", function(target)
-    print('bonjour', target)
+    currentCallout = target
     local x,y,z = GetPlayerLocation(target)    
     wpObject = CreateWaypoint(x, y, z, "URGENCE MEDICALE")    
+end)
+
+AddRemoteEvent("medic:callout:clean", function()
+    currentCallout = nil
+    if wpObject ~= nil then DestroyWaypoint(wpObject) end    
+    wpObject = nil
 end)

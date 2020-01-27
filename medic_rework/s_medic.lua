@@ -298,15 +298,23 @@ AddEvent("OnPlayerDeath", function(player, instigator)
     
     AddPlayerChat(player, "Il y a " .. GetMedicsOnDuty(player) .. " médecins en service")
     if GetMedicsOnDuty(player) > 0 then
-        SetPlayerRespawnTime(player, TIMER_BEFORE_RESPAWN * 1000)
-        
-        local x, y, z = GetPlayerLocation(player)
-        callOuts[player] = {location = {x = x, y = y, z = z}, taken = false}
-        MedicCalloutSend(player)
+        SetPlayerRespawnTime(player, TIMER_BEFORE_RESPAWN * 1000)        
+        CreateMedicCallout(player)
     else
         SetPlayerRespawnTime(player, TIMER_BEFORE_RESPAWN_WITHOUT_MEDIC * 1000)
     end
 end)
+
+
+
+--------- HEALTH BEHAVIOR END
+
+--------- CALLOUTS
+function CreateMedicCallout(player)
+    local x, y, z = GetPlayerLocation(player)
+    callOuts[player] = {location = {x = x, y = y, z = z}, taken = false}
+    MedicCalloutSend(player)
+end
 
 function MedicCalloutSend(player)
     for k, v in pairs(GetAllPlayers()) do
@@ -328,7 +336,20 @@ function MedicCalloutTake(player, target)
 
 end
 AddCommand("medcalltake", MedicCalloutTake)
---------- HEALTH BEHAVIOR END
+
+function MedicCalloutEnd(player, target)
+    if PlayerData[player].medic ~= 1 and PlayerData[player].job ~= "medic" then return end
+    if callOuts[tonumber(target)] == nil then return end
+    if callOuts[tonumber(target)].taken ~= true then 
+        CallRemoteEvent(player, "MakeErrorNotification", "Le callout n'a pas été pris") 
+        return
+    end
+    callOuts[tonumber(target)] = nil
+    CallRemoteEvent(player, "medic:callout:clean", tonumber(target))
+    CallRemoteEvent(player, "MakeNotification", "Vous avez terminé le callout", "linear-gradient(to right, #00b09b, #96c93d)")
+end
+AddCommand("medcallend", MedicCalloutEnd)
+--------- CALLOUTS END
 -- Tools
 function GetClosestSpawnPoint(player)
     local x, y, z = GetPlayerLocation(player)
