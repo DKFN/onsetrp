@@ -537,5 +537,10 @@
     "medic_equipment_checked":"Votre équipement est en ordre",
     "medic_callout_medic_is_coming": "Un médecin a pris votre appel",
     "medic_waypoing_label": "URGENCE MÉDICALE",
-    "medic_help_tooltip": "Utilisez /helpme pour appeler un médecin"
+    "medic_help_tooltip": "Utilisez /helpme pour appeler un médecin",
+    "medic_service_npc_name": "Jean-Guy",
+    "medic_service_npc_start": "Salutations ! C'est l'heure de sauver des vies paraît-il ?",
+    "medic_service_npc_stop":"Bah ! Tu nous quittes déjà ?!",
+    "medic_service_npc_end": "Ok, à la prochaine !",
+    "medic_service_npc_starting": "Allez, bon courage !",
 }

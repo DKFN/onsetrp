@@ -47,6 +47,10 @@ AddEvent("OnKeyPress", function(key)
     if key == INTERACT_KEY and not GetPlayerBusy() and IsOnDuty and IsNearbyNpc(GetPlayerId(), medicEquipmentNpcIds) ~= false then
         Dialog.show(medicEquipmentMenu)
     end
+
+    if key == INTERACT_KEY and not GetPlayerBusy() and IsNearbyNpc(GetPlayerId(), medicNpcIds) ~= false then
+        StartServiceConversation(IsNearbyNpc(GetPlayerId(), medicNpcIds))
+    end
 end)
 
 AddEvent("OnDialogSubmit", function(dialog, button, ...)
@@ -84,6 +88,37 @@ AddEvent("OnDialogSubmit", function(dialog, button, ...)
             MakeNotification(_("medic_equipment_checked"), "linear-gradient(to right, #00b09b, #96c93d)")
         end
     end
+end)
+
+function StartServiceConversation(npc)
+    local IsOnDuty = GetPlayerPropertyValue(GetPlayerId(), "Medic:IsOnDuty") or false
+    local message = (IsOnDuty and _("medic_service_npc_stop") or _("medic_service_npc_start"))
+    startCinematic({
+        title = _("medic_service_npc_name"),
+        message = message,
+        actions = {
+            {
+                text = _("yes"),
+                callback = "medic:startstopcinematic"
+            },
+            {
+                text = _("no"),
+                close_on_click = true
+            }
+        }
+    }, npc, "WAVE")
+end
+
+AddEvent("medic:startstopcinematic", function()
+    local IsOnDuty = GetPlayerPropertyValue(GetPlayerId(), "Medic:IsOnDuty") or false
+    local message = (IsOnDuty and _("medic_service_npc_end") or _("medic_service_npc_starting"))
+    updateCinematic({
+        message = message
+    }, NearestPolice, "WALLLEAN04")
+    Delay(1500, function()
+        stopCinematic()
+    end)
+    CallRemoteEvent("medic:startstopservice")
 end)
 
 AddRemoteEvent("medic:callout:updatepending", function(target)

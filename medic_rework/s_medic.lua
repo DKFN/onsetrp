@@ -306,6 +306,7 @@ AddRemoteEvent("medic:removeplayerincar", RemovePlayerInCar)
 function RevivePlayer(player) -- To revive a player. can fail. need defib.
     if PlayerData[player].medic ~= 1 then return end
     if PlayerData[player].job ~= "medic" then return end
+    if GetPlayerBusy(player) then return end
     
     local nearestPlayer = GetNearestPlayer(player, 200)-- Get closest player in range
     if nearestPlayer == nil or nearestPlayer == 0 then
@@ -321,6 +322,10 @@ function RevivePlayer(player) -- To revive a player. can fail. need defib.
         CallRemoteEvent(player, "MakeErrorNotification", _("medic_defibrillator_needed"))
         return
     end
+
+    -- Lock player while he's acting
+    CallRemoteEvent(player, "LockControlMove", true)
+    SetPlayerBusy(player)
     
     CallRemoteEvent(player, "loadingbar:show", _("medic_revive_attempt"), TIME_TO_REVIVE)-- LOADING BAR
     SetPlayerAnimation(player, "REVIVE")
@@ -331,7 +336,11 @@ function RevivePlayer(player) -- To revive a player. can fail. need defib.
     Delay(TIME_TO_REVIVE * 1000, function()
         DestroyTimer(timer)
         SetPlayerAnimation(player, "STOP")
-        
+
+        -- Unlock player
+        CallRemoteEvent(player, "LockControlMove", false)
+        SetPlayerNotBusy(player)
+
         math.randomseed(os.time())
         local lucky = math.random(100)
         if lucky > REVIVE_PERCENT_SUCCESS then -- Success !
@@ -358,6 +367,7 @@ AddRemoteEvent("medic:interact:revive", RevivePlayer)
 function TruelyHealPlayer(player) -- To really heal a player. This need to be at the hospital.
     if PlayerData[player].medic ~= 1 then return end
     if PlayerData[player].job ~= "medic" then return end
+    if GetPlayerBusy(player) then return end
 
     local nearestPlayer = GetNearestPlayer(player, 200)-- Get closest player in range
     if nearestPlayer == nil or nearestPlayer == 0 then
@@ -375,6 +385,9 @@ function TruelyHealPlayer(player) -- To really heal a player. This need to be at
         return
     end
 
+    -- Lock player while he's healing
+    SetPlayerBusy(player)
+
     CallRemoteEvent(player, "loadingbar:show", _("medic_healing_in_progress"), TIME_TO_HEAL)-- LOADING BAR
     SetPlayerAnimation(player, "HANDSHAKE")
     local timer = CreateTimer(function()
@@ -384,6 +397,9 @@ function TruelyHealPlayer(player) -- To really heal a player. This need to be at
     Delay(TIME_TO_HEAL * 1000, function()
         DestroyTimer(timer)
         SetPlayerAnimation(player, "STOP")
+
+        -- Unlock player
+        SetPlayerNotBusy(player)
         
         SetPlayerHealth(player, GetPlayerHealth(player) + 20)
         if GetPlayerHealth(player) > 100 then
@@ -498,9 +514,6 @@ function IsHospitalInRange(player) -- to nknow if player and targets are in rang
 end
 
 -- DEV MODE
-AddCommand("medic", function(player)
-    StartStopService(player)
-end)
 
 AddCommand("suicide", function(player)
     SetPlayerHealth(player, 0)
