@@ -543,4 +543,5 @@
     "medic_service_npc_stop":"Bah ! Tu nous quittes déjà ?!",
     "medic_service_npc_end": "Ok, à la prochaine !",
     "medic_service_npc_starting": "Allez, bon courage !",
+    "medic_damage_you_are_bleeding": "Vous saignez .."
 }

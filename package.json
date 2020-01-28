@@ -41,8 +41,8 @@
         "vehicle/ragP/server.lua",
         "vehicle/ragP/settings.lua",
         "animation/pickndrop_s.lua",
-        "medic_rework/s_medic.lua",
-        "medic_rework/s_damage.lua"
+        "medic/s_medic.lua",
+        "medic/s_damage.lua"
     ],
     "client_scripts": [
         "keys/c_config.lua",
@@ -86,7 +86,8 @@
         "vehicle/ragP/client.lua",
         "loading-bar/c_loadingbar.lua",
         "shortcuts/client.lua",
-        "medic_rework/c_medic.lua"
+        "medic/c_medic.lua",
+        "medic/c_damage.lua"
     ],
     "files": [
         "hud/speaking/speaking.png",
