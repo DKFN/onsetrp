@@ -6,6 +6,19 @@ local BLEED_EFFECT_AMOUNT = 70 -- the amount of bleed effect (red flash)
 
 local bleedingTimers = {}
 
+AddEvent("OnPlayerDeath", function(player, instigator)
+    CallRemoteEvent(player, "damage:death:toggleeffect", 1)
+end)
+
+AddEvent("OnPlayerSpawn", function(player)
+    CallRemoteEvent(player, "damage:death:toggleeffect", 0)
+end)
+
+AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hitY, hitZ, startX, startY, normalX, normalY, normalZ)
+    print('SHOT')
+end)
+
+
 AddEvent("OnPlayerDamage", function(player, damagetype, amount)
     print('DAMAGE', player, damagetype, amount)
 
@@ -48,6 +61,12 @@ end
 AddCommand("bleed", function(player, amount)
     ApplyBleeding(player, amount)
 end)
+
+AddCommand("death", function(player, active)
+    CallRemoteEvent(player, "damage:death:toggleeffect", active)
+    
+end)
+
 
 
 -- EN TEST
