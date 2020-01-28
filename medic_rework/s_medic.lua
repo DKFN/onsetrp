@@ -401,11 +401,11 @@ function TruelyHealPlayer(player) -- To really heal a player. This need to be at
         -- Unlock player
         SetPlayerNotBusy(player)
         
-        SetPlayerHealth(player, GetPlayerHealth(player) + 20)
-        if GetPlayerHealth(player) > 100 then
-            SetPlayerHealth(player, 100)
+        SetPlayerHealth(nearestPlayer, GetPlayerHealth(nearestPlayer) + 20)
+        if GetPlayerHealth(nearestPlayer) > 100 then
+            SetPlayerHealth(nearestPlayer, 100)
         end
-        PlayerData[nearestPlayer].health = GetPlayerHealth(player)
+        PlayerData[nearestPlayer].health = GetPlayerHealth(nearestPlayer)
         
         CallRemoteEvent(player, "MakeNotification", _("medic_done_healing"), "linear-gradient(to right, #00b09b, #96c93d)")
         return
@@ -442,8 +442,8 @@ function MedicCalloutSend(player) -- send the new callout to medics
     for k, v in pairs(GetAllPlayers()) do
         if PlayerData[v].medic ~= 1 then return end
         if PlayerData[v].job ~= "medic" then return end
-        CallRemoteEvent(player, "medic:callout:updatepending", player)
-        CallRemoteEvent(player, "MakeNotification", _("medic_someone_is_in_trouble"), "linear-gradient(to right, #00b09b, #96c93d)", 10000)
+        CallRemoteEvent(v, "medic:callout:updatepending", player)
+        CallRemoteEvent(v, "MakeNotification", _("medic_someone_is_in_trouble"), "linear-gradient(to right, #00b09b, #96c93d)", 10000)
     end
 end
 
@@ -494,9 +494,7 @@ end
 function GetMedicsOnDuty(player) -- numbers of medics on duty
     local nb = 0
     for k, v in pairs(GetAllPlayers()) do
-        if PlayerData[v].job == "medic" 
-        and v ~= player 
-        then
+        if PlayerData[v].job == "medic" and v ~= player then
             nb = nb + 1
         end
     end
