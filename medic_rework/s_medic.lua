@@ -495,7 +495,7 @@ function GetMedicsOnDuty(player) -- numbers of medics on duty
     local nb = 0
     for k, v in pairs(GetAllPlayers()) do
         if PlayerData[v].job == "medic" 
-        --and v ~= player 
+        and v ~= player 
         then
             nb = nb + 1
         end

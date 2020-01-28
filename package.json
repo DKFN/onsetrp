@@ -41,7 +41,8 @@
         "vehicle/ragP/server.lua",
         "vehicle/ragP/settings.lua",
         "animation/pickndrop_s.lua",
-        "medic_rework/s_medic.lua"
+        "medic_rework/s_medic.lua",
+        "medic_rework/s_damage.lua"
     ],
     "client_scripts": [
         "keys/c_config.lua",
