@@ -8,8 +8,7 @@ local BLEED_EFFECT_AMOUNT = 70 -- the amount of bleed effect (red flash)
 
 local BODY_Z = 50
 local HEAD_Z = 150
-local BODY_Z_CROUCHING = 50
-local HEAD_Z_CROUCHING = 70
+local HEAD_Z_CROUCHING = 100
 
 local WEAPON_HEADSHOT_MULTIPLIER = 1.7
 local WEAPON_BODY_MULTIPLIER = 0.9
@@ -46,10 +45,10 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
         -- CROUCHING CASE
         local headZ = HEAD_Z
         local bodyZ = BODY_Z
-        -- if GetPlayerMovementMode(hitid) == 4 then
-        --     headZ = HEAD_Z_CROUCHING
-        --     bodyZ = BODY_Z_CROUCHING
-        -- end
+        if GetPlayerMovementMode(hitid) == 4 then
+            headZ = HEAD_Z_CROUCHING
+            print('ye')
+        end
         
         local damages = 0
         print('POS',hitZ,feetPos,headZ,bodyZ)
