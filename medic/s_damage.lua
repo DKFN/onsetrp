@@ -153,3 +153,7 @@ AddCommand("death", function(player, active)
     CallRemoteEvent(player, "damage:death:toggleeffect", active)
 
 end)
+
+AddCommand("hh", function(player)
+    SetPlayerHealth(player, 100)    
+end)
