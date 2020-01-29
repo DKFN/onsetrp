@@ -8,8 +8,8 @@ local BLEED_EFFECT_AMOUNT = 70 -- the amount of bleed effect (red flash)
 
 local BODY_Z = 50
 local HEAD_Z = 150
-local BODY_Z_CROUCHING = 25
-local HEAD_Z_CROUCHING = 50
+local BODY_Z_CROUCHING = 50
+local HEAD_Z_CROUCHING = 70
 
 local WEAPON_HEADSHOT_MULTIPLIER = 1.7
 local WEAPON_BODY_MULTIPLIER = 0.9
