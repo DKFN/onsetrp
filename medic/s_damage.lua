@@ -47,19 +47,14 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
         local bodyZ = BODY_Z
         if GetPlayerMovementMode(hitid) == 4 then
             headZ = HEAD_Z_CROUCHING
-            print('ye')
         end
         
         local damages = 0
-        print('POS',hitZ,feetPos,headZ,bodyZ)
         if hitZ > feetPos + headZ then -- THIS LANDED IN HEAD
-            print('TETE')
             damages = (weaponDamages) * WEAPON_HEADSHOT_MULTIPLIER
         elseif hitZ > feetPos + bodyZ then -- THIS LANDED IN BODY
-            print('CORPS')
             damages = (weaponDamages) * WEAPON_BODY_MULTIPLIER
         else -- THIS LANDED IN FEETS
-            print('PIED')
             damages = (weaponDamages) * WEAPON_FOOT_MULTIPLIER
         end
         
@@ -80,11 +75,6 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
         end    
     end    
     return false
-end)
-
-local npctest
-AddEvent("OnPackageStart", function()
-    npctest = CreateNPC(210165, 160910, 1305, 0)
 end)
 
 function ApplyBleeding(player, damageAmount)
@@ -115,13 +105,21 @@ function ApplyBleeding(player, damageAmount)
     end, BLEEDING_DAMAGE_INTERVAL)
 end
 
+function CleanPlayerEffects(player)
+    if bleedingTimers[player] and bleedingTimers[player].timer then
+        DestroyTimer(bleedingTimers[player].timer)
+        bleedingTimers[player] = nil
+    end
+end
+AddEvent("OnPlayerQuit", CleanPlayerEffects)
+
+
 AddCommand("bleed", function(player, amount)
     ApplyBleeding(player, amount)
 end)
 
 AddCommand("death", function(player, active)
     CallRemoteEvent(player, "damage:death:toggleeffect", active)
-
 end)
 
 AddCommand("hh", function(player)
