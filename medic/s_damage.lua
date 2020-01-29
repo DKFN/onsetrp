@@ -30,6 +30,7 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
     if hittype == 2 then -- player
         if weapon == 21 then -- TASER
             SetPlayerHealth(hitid, GetPlayerHealth(hitid) - TASER_DAMAGES)
+            ApplyTaserEffect(player)
             return
         end
         -- GET WEAPON DAMAGES
@@ -72,10 +73,21 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
             if lucky <= BLEEDING_CHANCE then
                 ApplyBleeding(hitid, damages)
             end
-        end    
-    end    
+        end
+    end
     return false
 end)
+
+function ApplyTaserEffect(player)
+    SetPlayerRagdoll(player, true)-- Makes player ragdoll
+    Delay(6000, function()-- Waits 6 seconds before the player can stand up again
+        SetPlayerRagdoll(player, false)-- Disables the ragdoll so he can walk again.
+        SetPlayerAnimation(player, "PUSHUP_END")
+        Delay(2000, function()
+            CallEvent("police:refreshcuff", player)
+        end)
+    end)
+end
 
 function ApplyBleeding(player, damageAmount)
     local damages = (tonumber(damageAmount) / INITIAL_DAMAGE_TO_BLEED)
@@ -98,10 +110,10 @@ function ApplyBleeding(player, damageAmount)
             DestroyTimer(bleedingTimers[player].timer)
             bleedingTimers[player] = nil
             return
-        end        
+        end
         i = i + 1
         SetPlayerHealth(player, GetPlayerHealth(player) - DAMAGE_PER_TICK)
-        CallRemoteEvent(player, "damage:bleed:tickeffect", BLEED_EFFECT_AMOUNT)    
+        CallRemoteEvent(player, "damage:bleed:tickeffect", BLEED_EFFECT_AMOUNT)
     end, BLEEDING_DAMAGE_INTERVAL)
 end
 
