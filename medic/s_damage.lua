@@ -4,6 +4,13 @@ local DAMAGE_PER_TICK = 1 -- the damages the player will take on each tick
 local BLEEDING_DAMAGE_INTERVAL = 5000 -- The interval to apply damages
 local BLEED_EFFECT_AMOUNT = 70 -- the amount of bleed effect (red flash)
 
+local BODY_Z = 50
+local HEAD_Z = 150
+
+local WEAPON_HEADSHOT_MULTIPLIER = 2
+local WEAPON_BODY_MULTIPLIER = 1
+local WEAPON_FOOT_MULTIPLIER = 0.5
+
 local bleedingTimers = {}
 
 AddEvent("OnPlayerDeath", function(player, instigator)
@@ -15,14 +22,39 @@ AddEvent("OnPlayerSpawn", function(player)
 end)
 
 AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hitY, hitZ, startX, startY, normalX, normalY, normalZ)
-    print('SHOT')
+    print('SHOT', weapon)
 
+    local playerHealth = GetPlayerHealth(hitid)    
+    local weaponDamages = 0
+
+    local weaponTable = File_LoadJSONTable('weapons.json')
+    weaponDamages = weaponTable.weapons[weapon].Damage or 20
+
+    print('DAMAGE',weaponDamages)
     if hittype == 2 then -- player
     else -- npc
 
-        local npcx,npcy,npcz = GetNPCLocation(hitid)
+        local npcx,npcy,npcz = GetPlayerLocation(hitid)
         local npcFeetPos = npcz-90
 
+        print('Z', npcFeetPos, hitZ)
+
+        if hitZ > npcFeetPos + HEAD_Z then
+            print('TETE')
+            
+            playerHealth = playerHealth - (weaponDamages) * WEAPON_HEADSHOT_MULTIPLIER
+        elseif hitZ > npcFeetPos + BODY_Z then
+            print('CORPS')
+            playerHealth = playerHealth - (weaponDamages) * WEAPON_BODY_MULTIPLIER
+        else
+            print('PIED')
+            playerHealth = playerHealth - (weaponDamages) * WEAPON_FOOT_MULTIPLIER
+        end
+        
+        print('VIE',playerHealth)
+
+        SetPlayerHealth(hitid, playerHealth)
+        print('damage dealt')        
 
     end
 end)
