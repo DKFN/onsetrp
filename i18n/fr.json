@@ -542,6 +542,5 @@
     "medic_service_npc_start": "Salutations ! C'est l'heure de sauver des vies paraît-il ?",
     "medic_service_npc_stop":"Bah ! Tu nous quittes déjà ?!",
     "medic_service_npc_end": "Ok, à la prochaine !",
-    "medic_service_npc_starting": "Allez, bon courage !",
-    "medic_damage_you_are_bleeding": "Vous saignez .."
+    "medic_service_npc_starting": "Allez, bon courage !"
 }

@@ -8,6 +8,8 @@ local BLEED_EFFECT_AMOUNT = 70 -- the amount of bleed effect (red flash)
 
 local BODY_Z = 50
 local HEAD_Z = 150
+local BODY_Z_CROUCHING = 25
+local HEAD_Z_CROUCHING = 50
 
 local WEAPON_HEADSHOT_MULTIPLIER = 1.7
 local WEAPON_BODY_MULTIPLIER = 0.9
@@ -26,61 +28,58 @@ AddEvent("OnPlayerSpawn", function(player)
 end)
 
 AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hitY, hitZ, startX, startY, normalX, normalY, normalZ)
-        
-        if hittype == 2 then -- player
-            if weapon == 21 then -- TASER
-                SetPlayerHealth(hitid, GetPlayerHealth(hitid) - TASER_DAMAGES) 
-                return 
-            end
-            -- GET WEAPON DAMAGES
-            local weaponDamages = 0
-            local weaponTable = File_LoadJSONTable('weapons.json')
-            weaponDamages = weaponTable.weapons[weapon].Damage or 20
-            
-            -- GET PLAYER POS
-            local x, y, z = GetPlayerLocation(hitid)
-            -- GET PLAYER FEETS POS
-            local npcFeetPos = z - 90
-            
-            local damages = 0
-            if hitZ > npcFeetPos + HEAD_Z then -- THIS LANDED IN HEAD
-                print('TETE')
-                damages = (weaponDamages) * WEAPON_HEADSHOT_MULTIPLIER
-            elseif hitZ > npcFeetPos + BODY_Z then -- THIS LANDED IN BODY
-                print('CORPS')
-                damages = (weaponDamages) * WEAPON_BODY_MULTIPLIER
-            else -- THIS LANDED IN FEETS
-                print('PIED')
-                damages = (weaponDamages) * WEAPON_FOOT_MULTIPLIER
-            end
-            
-            print('DAMAGES', damages)
-            
-            -- SET PLAYER HEALTH
-            SetPlayerHealth(hitid, GetPlayerHealth(hitid) - damages)
-            PlayerData[hitid].health = GetPlayerHealth(hitid)
-            if GetPlayerHealth(hitid) < 0 then -- FAIL CHECK
-                SetPlayerHealth(hitid, 0)
-                PlayerData[hitid].health = 0
-            end
-            
-            print('VIE', GetPlayerHealth(hitid))
-            
-            print('DONE ...')
-
-            if GetPlayerHealth(hitid) > 0 then
-                math.randomseed(os.time())
-                local lucky = math.random(100)
-                print('LUCKY BLEED', lucky)
-                if lucky <= BLEEDING_CHANCE then
-                    ApplyBleeding(hitid, damages)
-                    CallRemoteEvent(hitid, "MakeNotification", _("medic_damage_you_are_bleeding"), "linear-gradient(to right, #00b09b, #96c93d)")
-                end
-            end
-        
+    if hittype == 2 then -- player
+        if weapon == 21 then -- TASER
+            SetPlayerHealth(hitid, GetPlayerHealth(hitid) - TASER_DAMAGES)
+            return
         end
-
-        return false
+        -- GET WEAPON DAMAGES
+        local weaponDamages = 0
+        local weaponTable = File_LoadJSONTable('weapons.json')
+        weaponDamages = weaponTable.weapons[weapon].Damage or 20
+        
+        -- GET PLAYER POS
+        local x, y, z = GetPlayerLocation(hitid)
+        -- GET PLAYER FEETS POS
+        local npcFeetPos = z - 90
+        
+        -- CROUCHING CASE
+        local headZ = HEAD_Z
+        local bodyZ = BODY_Z
+        if GetPlayerMovementMode(hitid) == 4 then
+            headZ = HEAD_Z_CROUCHING
+            bodyZ = BODY_Z_CROUCHING
+        end
+        
+        local damages = 0
+        if hitZ > npcFeetPos + headZ then -- THIS LANDED IN HEAD
+            print('TETE')
+            damages = (weaponDamages) * WEAPON_HEADSHOT_MULTIPLIER
+        elseif hitZ > npcFeetPos + bodyZ then -- THIS LANDED IN BODY
+            print('CORPS')
+            damages = (weaponDamages) * WEAPON_BODY_MULTIPLIER
+        else -- THIS LANDED IN FEETS
+            print('PIED')
+            damages = (weaponDamages) * WEAPON_FOOT_MULTIPLIER
+        end
+        
+        -- SET PLAYER HEALTH
+        SetPlayerHealth(hitid, GetPlayerHealth(hitid) - damages)
+        PlayerData[hitid].health = GetPlayerHealth(hitid)
+        if GetPlayerHealth(hitid) < 0 then -- FAIL CHECK
+            SetPlayerHealth(hitid, 0)
+            PlayerData[hitid].health = 0
+        end
+        
+        if GetPlayerHealth(hitid) > 0 then
+            math.randomseed(os.time())
+            local lucky = math.random(100)
+            if lucky <= BLEEDING_CHANCE then
+                ApplyBleeding(hitid, damages)
+            end
+        end    
+    end    
+    return false
 end)
 
 local npctest
@@ -91,8 +90,8 @@ end)
 function ApplyBleeding(player, damageAmount)
     local damages = (tonumber(damageAmount) / INITIAL_DAMAGE_TO_BLEED)
     local bleedingTime = math.ceil(damages / DAMAGE_PER_TICK)-- calculate the amount of time while the player will bleed
-    print('time', bleedingTime, damages)
     
+    -- Reset timer if another bleed occur
     if bleedingTimers[player] ~= nil then
         DestroyTimer(bleedingTimers[player].timer)
     end
@@ -108,15 +107,11 @@ function ApplyBleeding(player, damageAmount)
             end
             DestroyTimer(bleedingTimers[player].timer)
             bleedingTimers[player] = nil
-            print('bleeding stopped')
             return
-        end
-
-        i = i + 1        
-        print('applying ' .. DAMAGE_PER_TICK .. ' dmg')
+        end        
+        i = i + 1
         SetPlayerHealth(player, GetPlayerHealth(player) - DAMAGE_PER_TICK)
-        CallRemoteEvent(player, "damage:bleed:tickeffect", BLEED_EFFECT_AMOUNT)
-    
+        CallRemoteEvent(player, "damage:bleed:tickeffect", BLEED_EFFECT_AMOUNT)    
     end, BLEEDING_DAMAGE_INTERVAL)
 end
 
@@ -130,5 +125,5 @@ AddCommand("death", function(player, active)
 end)
 
 AddCommand("hh", function(player)
-    SetPlayerHealth(player, 100)    
+    SetPlayerHealth(player, 100)
 end)
