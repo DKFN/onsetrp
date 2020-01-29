@@ -93,6 +93,9 @@ function ApplyBleeding(player, damageAmount)
     local bleedingTime = math.ceil(damages / DAMAGE_PER_TICK)-- calculate the amount of time while the player will bleed
     print('time', bleedingTime, damages)
     
+    if bleedingTimers[player] ~= nil then
+        DestroyTimer(bleedingTimers[player].timer)
+    end
     bleedingTimers[player] = {}
     
     CallRemoteEvent(player, "damage:bleed:toggleeffect", 1)
