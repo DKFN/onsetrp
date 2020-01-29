@@ -68,12 +68,14 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
             
             print('DONE ...')
 
-            math.randomseed(os.time())
-            local lucky = math.random(100)
-            print('LUCKY BLEED', lucky)
-            if lucky <= BLEEDING_CHANCE then
-                ApplyBleeding(hitid, damages)
-                CallRemoteEvent(hitid, "MakeNotification", _("medic_damage_you_are_bleeding"), "linear-gradient(to right, #00b09b, #96c93d)")
+            if GetPlayerHealth(hitid) > 0 then
+                math.randomseed(os.time())
+                local lucky = math.random(100)
+                print('LUCKY BLEED', lucky)
+                if lucky <= BLEEDING_CHANCE then
+                    ApplyBleeding(hitid, damages)
+                    CallRemoteEvent(hitid, "MakeNotification", _("medic_damage_you_are_bleeding"), "linear-gradient(to right, #00b09b, #96c93d)")
+                end
             end
         
         end
