@@ -84,19 +84,6 @@ AddEvent("OnPackageStart", function()
     npctest = CreateNPC(210165, 160910, 1305, 0)
 end)
 
-
-
-AddEvent("OnPlayerDamage", function(player, damagetype, amount)
-    print('--OnPlayerDamage', player, damagetype, amount)
-    math.randomseed(os.time())
-    local lucky = math.random(100)
-    if lucky <= BLEEDING_CHANCE then
-        ApplyBleeding(player, amount)
-        CallRemoteEvent(player, "MakeNotification", _("medic_damage_you_are_bleeding"), "linear-gradient(to right, #00b09b, #96c93d)")
-    end
--- -- Weapn = 1
-end)
-
 function ApplyBleeding(player, damageAmount)
     local damages = (tonumber(damageAmount) / INITIAL_DAMAGE_TO_BLEED)
     local bleedingTime = math.ceil(damages / DAMAGE_PER_TICK)-- calculate the amount of time while the player will bleed
@@ -108,7 +95,7 @@ function ApplyBleeding(player, damageAmount)
     
     local i = 0
     bleedingTimers[player].timer = CreateTimer(function()
-        if i >= bleedingTime then -- end is reached
+        if i >= bleedingTime or GetPlayerHealth(player) < 1 then -- end is reached
             CallRemoteEvent(player, "damage:bleed:toggleeffect", 0)
             DestroyTimer(bleedingTimers[player].timer)
             bleedingTimers[player] = nil
