@@ -481,9 +481,7 @@ AddRemoteEvent("medic:callout:end", MedicCalloutEnd)
 AddCommand("medcallend", MedicCalloutEnd)
 --------- CALLOUTS END
 --------- ITEMS USES
-function MedicUseItem(player, item)
-    print("USE ITEM", player, item)
-    
+function MedicUseItem(player, item)    
     if item == "health_kit" then -- PERSONNAL HEALTH KIT (Dont need to be medic)
         if GetPlayerHealth(player) < ITEM_MEDKIT_HEAL then
             CallRemoteEvent(player, "loadingbar:show", _("medic_item_use", _("health_kit")), ITEM_TIME_TO_USE)-- LOADING BAR
@@ -497,7 +495,10 @@ function MedicUseItem(player, item)
                 SetPlayerAnimation(player, "STOP")
                 SetPlayerHealth(player, ITEM_MEDKIT_HEAL)
                 RemoveInventory(player, item, 1)
+                CallRemoteEvent(player, "MakeNotification", _("medic_item_health_kit_success"), "linear-gradient(to right, #00b09b, #96c93d)")
             end)
+        else
+            CallRemoteEvent(player, "MakeErrorNotification", _("medic_item_health_kit_cant_do_more"))
         end
     end
     
@@ -511,8 +512,21 @@ function MedicUseItem(player, item)
             return
         end
         if GetPlayerHealth(nearestPlayer) < ITEM_ADRENALINE_SYRINGE_HEAL then
-            SetPlayerHealth(nearestPlayer, ITEM_ADRENALINE_SYRINGE_HEAL)
-            RemoveInventory(player, item, 1)
+            CallRemoteEvent(player, "loadingbar:show", _("medic_item_use", _("adrenaline_syringe")), ITEM_TIME_TO_USE)-- LOADING BAR
+            SetPlayerAnimation(player, "COMBINE")
+            local timer = CreateTimer(function()
+                SetPlayerAnimation(player, "COMBINE")
+            end, 2000)
+            
+            Delay(ITEM_TIME_TO_USE * 1000, function()
+                DestroyTimer(timer)
+                SetPlayerAnimation(player, "STOP")
+                SetPlayerHealth(nearestPlayer, ITEM_ADRENALINE_SYRINGE_HEAL)
+                RemoveInventory(player, item, 1)
+                CallRemoteEvent(player, "MakeNotification", _("medic_item_adrenaline_syringue_success"), "linear-gradient(to right, #00b09b, #96c93d)")
+            end)
+        else
+            CallRemoteEvent(player, "MakeErrorNotification", _("medic_item_adrenaline_syringue_not_needed"))
         end
     end
     
@@ -523,8 +537,21 @@ function MedicUseItem(player, item)
             return
         end
         if IsPlayerBleeding(nearestPlayer) then
-            StopBleedingForPlayer(nearestPlayer)
-            RemoveInventory(player, item, 1)
+            CallRemoteEvent(player, "loadingbar:show", _("medic_item_use", _("adrenaline_syringe")), ITEM_TIME_TO_USE)-- LOADING BAR
+            SetPlayerAnimation(player, "COMBINE")
+            local timer = CreateTimer(function()
+                SetPlayerAnimation(player, "COMBINE")
+            end, 2000)
+            
+            Delay(ITEM_TIME_TO_USE * 1000, function()
+                DestroyTimer(timer)
+                SetPlayerAnimation(player, "STOP")
+                StopBleedingForPlayer(nearestPlayer)
+                RemoveInventory(player, item, 1)
+                CallRemoteEvent(player, "MakeNotification", _("medic_item_bandage_success"), "linear-gradient(to right, #00b09b, #96c93d)")
+            end)
+        else
+            CallRemoteEvent(player, "MakeErrorNotification", _("medic_item_bandage_not_needed"))
         end
     end
 

@@ -543,5 +543,11 @@
     "medic_service_npc_stop":"Bah ! Tu nous quittes déjà ?!",
     "medic_service_npc_end": "Ok, à la prochaine !",
     "medic_service_npc_starting": "Allez, bon courage !",
-    "medic_item_use": "Utilisation de {1}"
+    "medic_item_use": "Utilisation de {1}",
+    "medic_item_health_kit_cant_do_more": "Le kit de soin ne peut pas vous soigner plus",
+    "medic_item_adrenaline_syringue_not_needed": "Cette personne ne requiert pas l'utilisation d'une seringue d'adrénaline",
+    "medic_item_bandage_not_needed": "Cette personne ne saigne pas",
+    "medic_item_health_kit_success": "Vous avez utilisé un kit de soin avec succès",
+    "medic_item_adrenaline_syringue_success": "Vous avez sauvé cette personne à l'aide d'une seringue d'adrénaline",
+    "medic_item_bandage_success": "Vous avez pansé le saignement de cette personne avec succès"
 }
