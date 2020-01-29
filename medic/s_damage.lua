@@ -98,6 +98,8 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
             print('DONE ...')
         
         end
+
+        return false
 end)
 
 local npctest
