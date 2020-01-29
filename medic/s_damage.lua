@@ -41,7 +41,7 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
         -- GET PLAYER POS
         local x, y, z = GetPlayerLocation(hitid)
         -- GET PLAYER FEETS POS
-        local npcFeetPos = z - 90
+        local feetPos = z - 90
         
         -- CROUCHING CASE
         local headZ = HEAD_Z
@@ -52,10 +52,11 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
         end
         
         local damages = 0
-        if hitZ > npcFeetPos + headZ then -- THIS LANDED IN HEAD
+        print('POS',hitZ,feetPos,headZ,bodyZ)
+        if hitZ > feetPos + headZ then -- THIS LANDED IN HEAD
             print('TETE')
             damages = (weaponDamages) * WEAPON_HEADSHOT_MULTIPLIER
-        elseif hitZ > npcFeetPos + bodyZ then -- THIS LANDED IN BODY
+        elseif hitZ > feetPos + bodyZ then -- THIS LANDED IN BODY
             print('CORPS')
             damages = (weaponDamages) * WEAPON_BODY_MULTIPLIER
         else -- THIS LANDED IN FEETS
