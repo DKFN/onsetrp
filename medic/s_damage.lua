@@ -99,15 +99,17 @@ function ApplyBleeding(player, damageAmount)
     
     local i = 0
     bleedingTimers[player].timer = CreateTimer(function()
-        if i >= bleedingTime or GetPlayerHealth(player) < 1 then -- end is reached
-            CallRemoteEvent(player, "damage:bleed:toggleeffect", 0)
+        if i >= bleedingTime then -- end is reached
+            if GetPlayerHealth(player) > 0 then
+                CallRemoteEvent(player, "damage:bleed:toggleeffect", 0)
+            end
             DestroyTimer(bleedingTimers[player].timer)
             bleedingTimers[player] = nil
             print('bleeding stopped')
             return
         end
-        i = i + 1
-        
+
+        i = i + 1        
         print('applying ' .. DAMAGE_PER_TICK .. ' dmg')
         SetPlayerHealth(player, GetPlayerHealth(player) - DAMAGE_PER_TICK)
         CallRemoteEvent(player, "damage:bleed:tickeffect", BLEED_EFFECT_AMOUNT)
