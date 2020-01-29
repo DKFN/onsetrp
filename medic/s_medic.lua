@@ -43,7 +43,8 @@ local MEDIC_EQUIPEMENT_NEEDED = {
     {item = "health_kit", qty = 1},
 }
 
-local ITEM_MEDKIT_HEAL = 30
+local ITEM_MEDKIT_HEAL = 10
+local ITEM_MEDKIT_MAX_HEAL = 30
 local ITEM_ADRENALINE_SYRINGE_HEAL = 20
 local ITEM_TIME_TO_USE = 5
 
@@ -483,7 +484,7 @@ AddCommand("medcallend", MedicCalloutEnd)
 --------- ITEMS USES
 function MedicUseItem(player, item)    
     if item == "health_kit" then -- PERSONNAL HEALTH KIT (Dont need to be medic)
-        if GetPlayerHealth(player) < ITEM_MEDKIT_HEAL then
+        if GetPlayerHealth(player) < ITEM_MEDKIT_MAX_HEAL then
             CallRemoteEvent(player, "loadingbar:show", _("medic_item_use", _("health_kit")), ITEM_TIME_TO_USE)-- LOADING BAR
             SetPlayerAnimation(player, "COMBINE")
             local timer = CreateTimer(function()
@@ -493,7 +494,9 @@ function MedicUseItem(player, item)
             Delay(ITEM_TIME_TO_USE * 1000, function()
                 DestroyTimer(timer)
                 SetPlayerAnimation(player, "STOP")
-                SetPlayerHealth(player, ITEM_MEDKIT_HEAL)
+                SetPlayerHealth(player, GetPlayerHealth(player) + ITEM_MEDKIT_HEAL)
+                if GetPlayerHealth(player) > ITEM_MEDKIT_MAX_HEAL then SetPlayerHealth(player, ITEM_MEDKIT_MAX_HEAL) end
+                PlayerData[player].health = GetPlayerHealth(player)
                 RemoveInventory(player, item, 1)
                 CallRemoteEvent(player, "MakeNotification", _("medic_item_health_kit_success"), "linear-gradient(to right, #00b09b, #96c93d)")
             end)
@@ -522,6 +525,7 @@ function MedicUseItem(player, item)
                 DestroyTimer(timer)
                 SetPlayerAnimation(player, "STOP")
                 SetPlayerHealth(nearestPlayer, ITEM_ADRENALINE_SYRINGE_HEAL)
+                PlayerData[player].health = GetPlayerHealth(nearestPlayer)
                 RemoveInventory(player, item, 1)
                 CallRemoteEvent(player, "MakeNotification", _("medic_item_adrenaline_syringue_success"), "linear-gradient(to right, #00b09b, #96c93d)")
             end)
