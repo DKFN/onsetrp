@@ -1,5 +1,12 @@
 AddRemoteEvent("damage:bleed:tickeffect", function(amount)
-    InvokeDamageFX(amount)
+    InvokeDamageFX(amount)    
+end)
+
+AddRemoteEvent("damage:bleed:dropblood", function(target)    
+    GetPlayerActor(tonumber(target)):PlayBloodDecalEffects()
+    Delay(2000, function()
+        GetPlayerActor(tonumber(target)):PlayBloodDecalEffects()
+    end)    
 end)
 
 AddRemoteEvent("damage:bleed:toggleeffect", function(active)

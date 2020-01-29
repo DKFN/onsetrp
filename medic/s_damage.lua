@@ -15,6 +15,7 @@ local WEAPON_BODY_MULTIPLIER = 0.9
 local WEAPON_FOOT_MULTIPLIER = 0.3
 
 local TASER_DAMAGES = 5
+local FIST_DAMAGES = 3
 
 local bleedingTimers = {}
 
@@ -28,6 +29,10 @@ end)
 
 AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hitY, hitZ, startX, startY, normalX, normalY, normalZ)
     if hittype == 2 then -- player
+        if weapon == 1 then -- FISTS
+            SetPlayerHealth(hitid, GetPlayerHealth(hitid) - FIST_DAMAGES)
+            return
+        end
         if weapon == 21 then -- TASER
             SetPlayerHealth(hitid, GetPlayerHealth(hitid) - TASER_DAMAGES)
             ApplyTaserEffect(player)
@@ -99,7 +104,7 @@ function ApplyBleeding(player, damageAmount)
     end
     bleedingTimers[player] = {}
     
-    CallRemoteEvent(player, "damage:bleed:toggleeffect", 1)
+    --CallRemoteEvent(player, "damage:bleed:toggleeffect", 1)
     
     local i = 0
     bleedingTimers[player].timer = CreateTimer(function()
@@ -114,6 +119,9 @@ function ApplyBleeding(player, damageAmount)
         i = i + 1
         SetPlayerHealth(player, GetPlayerHealth(player) - DAMAGE_PER_TICK)
         CallRemoteEvent(player, "damage:bleed:tickeffect", BLEED_EFFECT_AMOUNT)
+        for k,v in pairs(GetStreamedPlayersForPlayer(player)) do
+            CallRemoteEvent(v, "damage:bleed:dropblood", player)
+        end
     end, BLEEDING_DAMAGE_INTERVAL)
 end
 
