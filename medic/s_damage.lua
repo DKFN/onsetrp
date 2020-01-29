@@ -1,3 +1,5 @@
+local _ = function(k, ...) return ImportPackage("i18n").t(GetPackageName(), k, ...) end
+
 local BLEEDING_CHANCE = 20 -- Chance for the player to bleed on damage
 local INITIAL_DAMAGE_TO_BLEED = 2 -- how much the damages have to be divided by
 local DAMAGE_PER_TICK = 1 -- the damages the player will take on each tick
@@ -71,7 +73,7 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
             print('LUCKY BLEED', lucky)
             if lucky <= BLEEDING_CHANCE then
                 ApplyBleeding(hitid, damages)
-                CallRemoteEvent(player, "MakeNotification", _("medic_damage_you_are_bleeding"), "linear-gradient(to right, #00b09b, #96c93d)")
+                CallRemoteEvent(hitid, "MakeNotification", _("medic_damage_you_are_bleeding"), "linear-gradient(to right, #00b09b, #96c93d)")
             end
         
         end
