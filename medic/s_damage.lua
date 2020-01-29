@@ -99,7 +99,7 @@ function ApplyBleeding(player, damageAmount)
     
     local i = 0
     bleedingTimers[player].timer = CreateTimer(function()
-        if i >= bleedingTime then -- end is reached
+        if i >= bleedingTime or GetPlayerHealth(player) < 1 then -- end is reached
             if GetPlayerHealth(player) > 0 then
                 CallRemoteEvent(player, "damage:bleed:toggleeffect", 0)
             end
