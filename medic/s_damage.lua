@@ -133,15 +133,25 @@ function CleanPlayerEffects(player)
 end
 AddEvent("OnPlayerQuit", CleanPlayerEffects)
 
+function IsPlayerBleeding(player)
+    if bleedingTimers[player] ~= nil and bleedingTimers[player].timer ~= nil then
+        return true
+    end
+    return false
+end
 
+function StopBleedingForPlayer(player)
+    if bleedingTimers[player] ~= nil and bleedingTimers[player].timer ~= nil then
+        DestroyTimer(bleedingTimers[player].timer)
+        bleedingTimers[player] = nil
+    end
+end
+
+-- DEV MOD
 AddCommand("bleed", function(player, amount)
     ApplyBleeding(player, amount)
 end)
 
 AddCommand("death", function(player, active)
     CallRemoteEvent(player, "damage:death:toggleeffect", active)
-end)
-
-AddCommand("hh", function(player)
-    SetPlayerHealth(player, 100)
 end)

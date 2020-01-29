@@ -43,6 +43,9 @@ local MEDIC_EQUIPEMENT_NEEDED = {
     {item = "health_kit", qty = 1},
 }
 
+local ITEM_MEDKIT_HEAL = 50
+local ITEM_ADRENALINE_SYRINGE_HEAL = 20
+
 local medicNpcIds = {}
 local medicVehicleNpcIds = {}
 local medicGarageIds = {}
@@ -476,6 +479,52 @@ AddRemoteEvent("medic:callout:end", MedicCalloutEnd)
 
 AddCommand("medcallend", MedicCalloutEnd)
 --------- CALLOUTS END
+--------- ITEMS USES
+function MedicUseItem(player, item)
+    print("USE ITEM", player, item)
+
+    if item == "health_kit" then -- PERSONNAL HEALTH KIT (Dont need to be medic)
+        print('health kit')
+        if GetPlayerHealth(player) < ITEM_MEDKIT_HEAL then
+            SetPlayerHealth(player, ITEM_MEDKIT_HEAL)    
+            RemoveInventory(player, item, 1)        
+        end
+    end
+
+    if PlayerData[player].medic ~= 1 then return end
+    if PlayerData[player].job ~= "medic" then return end
+    -- THE FOLLOWING NEED A MEDIC
+
+    if item == "adrenaline_syringe" then -- ADRENALINE SYRINGUE TO SAVE OTHER PLAYER FROM DEATH
+        local nearestPlayer = GetNearestPlayer(player, 200)-- Get closest player in range
+        if nearestPlayer == nil or nearestPlayer == 0 then
+            CallRemoteEvent(player, "MakeErrorNotification", _("medic_nobody_nearby"))
+            return
+        end
+        if GetPlayerHealth(nearestPlayer) < ITEM_ADRENALINE_SYRINGE_HEAL then
+            SetPlayerHealth(nearestPlayer, ITEM_ADRENALINE_SYRINGE_HEAL)    
+            RemoveInventory(player, item, 1)        
+        end
+    end
+
+    if item == "bandage" then -- BANDAGE TO REMOVE A BLEEDING FROM A PLAYER
+        local nearestPlayer = GetNearestPlayer(player, 200)-- Get closest player in range
+        if nearestPlayer == nil or nearestPlayer == 0 then
+            CallRemoteEvent(player, "MakeErrorNotification", _("medic_nobody_nearby"))
+            return
+        end
+        if IsPlayerBleeding(nearestPlayer) then
+            StopBleedingForPlayer(nearestPlayer)
+            RemoveInventory(player, item, 1)      
+        end
+    end
+
+end
+AddEvent("job:usespecialitem", MedicUseItem)
+
+--------- ITEMS USES END
+
+
 -- Tools
 function GetClosestSpawnPoint(player) -- get closeest spawn point for vehicle
     local x, y, z = GetPlayerLocation(player)
@@ -520,5 +569,11 @@ end)
 AddCommand("helpme", function(player)
     CreateMedicCallout(player)
 end)
+
+AddCommand("hh", function(player, amount)
+    SetPlayerHealth(player, tonumber(amount))
+    
+end)
+
 
 

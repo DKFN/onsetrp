@@ -143,8 +143,8 @@ INSERT INTO `items` (`id`, `name`, `category`, `subcategory`, `price`, `weight`,
 	(42, 'handcuffs', 'job_item', 'tool', 0, 1000, 0, 0, 0, 0),
 	(44, 'iron_ore', 'job_item', 'object', 0, 16000, 0, 0, 0, 0),
 	(47, 'defibrillator', 'job_item', 'tool', 0, 6000, 0, 0, 0, 0),
-	(48, 'adrenaline_syringe', 'job_item', 'tool', 0, 1000, 0, 0, 0, 0),
-	(49, 'bandage', 'job_item', 'tool', 0, 1000, 0, 0, 0, 0);
+	(48, 'adrenaline_syringe', 'job_item', 'tool', 0, 1000, 0, 0, 0, 1),
+	(49, 'bandage', 'job_item', 'tool', 0, 1000, 0, 0, 0, 1);
 /*!40000 ALTER TABLE `items` ENABLE KEYS */;
 
 -- Listage de la structure de la table roleplay. logs
