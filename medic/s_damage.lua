@@ -46,10 +46,10 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
         -- CROUCHING CASE
         local headZ = HEAD_Z
         local bodyZ = BODY_Z
-        if GetPlayerMovementMode(hitid) == 4 then
-            headZ = HEAD_Z_CROUCHING
-            bodyZ = BODY_Z_CROUCHING
-        end
+        -- if GetPlayerMovementMode(hitid) == 4 then
+        --     headZ = HEAD_Z_CROUCHING
+        --     bodyZ = BODY_Z_CROUCHING
+        -- end
         
         local damages = 0
         print('POS',hitZ,feetPos,headZ,bodyZ)
