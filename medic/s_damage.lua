@@ -32,8 +32,6 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
 
     print('DAMAGE',weaponDamages)
     if hittype == 2 then -- player
-    else -- npc
-
         local npcx,npcy,npcz = GetPlayerLocation(hitid)
         local npcFeetPos = npcz-90
 
@@ -54,7 +52,10 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
         print('VIE',playerHealth)
 
         SetPlayerHealth(hitid, playerHealth)
-        print('damage dealt')        
+        print('damage dealt')   
+    else -- npc
+
+             
 
     end
 end)
