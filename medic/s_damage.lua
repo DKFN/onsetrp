@@ -70,7 +70,7 @@ AddEvent("OnPlayerWeaponShot", function(player, weapon, hittype, hitid, hitX, hi
             local lucky = math.random(100)
             print('LUCKY BLEED', lucky)
             if lucky <= BLEEDING_CHANCE then
-                ApplyBleeding(player, amount)
+                ApplyBleeding(hitid, damages)
                 CallRemoteEvent(player, "MakeNotification", _("medic_damage_you_are_bleeding"), "linear-gradient(to right, #00b09b, #96c93d)")
             end
         
